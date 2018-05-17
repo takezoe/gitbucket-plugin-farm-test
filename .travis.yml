@@ -26,5 +26,6 @@ script:
 
 after_script:
   - ls -l docs/releases
+  - git status
 #  - cat dist/plugins.json
 #  - cat ~/gitbucket.log
