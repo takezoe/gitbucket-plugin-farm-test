@@ -17,6 +17,7 @@ before_cache:
   - find $HOME/.sbt        -name "*.lock"               -print -delete
 
 before_script:
+  - ls -l docs/releases
   - mkdir -p $HOME/Downloads
 #  - bash -xe ./run_gitbucket.sh
 
@@ -24,6 +25,6 @@ script:
   - bash ./build_all.sh
 
 after_script:
-  - ls -al docs/releases
+  - ls -l docs/releases
 #  - cat dist/plugins.json
 #  - cat ~/gitbucket.log
