@@ -1,6 +1,6 @@
 #!/bin/bash
 
-#FARM_BASE_URL=https://github.com/kounoike/gitbucket-plugin-farm-test/releases/download
+FARM_BASE_URL=https://github.com/takezoe/gitbucket-plugin-farm-test/raw/master/docs/releases
 #BUILD_DATE=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
 . gitbucket_version.sh
 
@@ -81,7 +81,7 @@ buildPlugin() {
         {
             "version": "${PLUGIN_VERSION}",
             "range": ">=${GITBUCKET_VERSION}",
-            "url": "${FARM_BASE_URL}/${GITBUCKET_VERSION}/$(basename ${PLUGIN_JAR})",
+            "url": "${FARM_BASE_URL}/$(basename ${PLUGIN_JAR})",
             "jarFileName": "$(basename ${PLUGIN_JAR})"
         }
     ],
