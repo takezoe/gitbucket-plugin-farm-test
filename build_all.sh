@@ -1,13 +1,21 @@
 #!/bin/bash
 
-FARM_BASE_URL=https://github.com/kounoike/gitbucket-plugin-farm-test/releases/download
-BUILD_DATE=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+#FARM_BASE_URL=https://github.com/kounoike/gitbucket-plugin-farm-test/releases/download
+#BUILD_DATE=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
 . gitbucket_version.sh
 
 buildPlugin() {
     target=$1
 
     . $target.sh
+
+    # clean build dir
+    if [ -e build ]; then
+      rm -rf build
+    fi
+
+    mkdir build
+    cd build
 
     # get source
     if [ $PLUGIN_TAG_NAME == "master" ]; then
@@ -33,37 +41,37 @@ buildPlugin() {
     fi
 
     # build plugin
-    if [ -e ../build.sh ]; then
-        bash ../build.sh >&2 || return
+    if [ -e ../../build.sh ]; then
+        bash ../../build.sh >&2 || return
     else
         sbt assembly >&2 || return
     fi
 
     # copy artifact
-    PLUGINS_DIR=${HOME}/.gitbucket/plugins/
+#    PLUGINS_DIR=${HOME}/.gitbucket/plugins/
     if [ -e ${PLUGIN_JAR} ]; then
-        [ -d ${PLUGINS_DIR} ] || mkdir -p ${PLUGINS_DIR}
-        cp -f ${PLUGIN_JAR} ${PLUGINS_DIR}
-        mv ${PLUGIN_JAR} ${TRAVIS_BUILD_DIR}/dist/
+#        [ -d ${PLUGINS_DIR} ] || mkdir -p ${PLUGINS_DIR}
+        cp -f ${PLUGIN_JAR} ../../../../docs/releases
+#        mv ${PLUGIN_JAR} ${TRAVIS_BUILD_DIR}/dist/
     else
         return
     fi
 
-    # check plugin list api
-    sleep 5 # wait for load plugin
-    plugins=$(curl -sS http://localhost:8080/api/v3/gitbucket/plugins)
-    echo $plugins | jq -e ".[] | select(.id == \"${PLUGIN_ID}\")" > /dev/null
-    if [ $? != 0 ] ; then
-        rm -f ${PLUGINS_DIR}/$(basename ${PLUGIN_JAR})
-        return
-    fi
+#    # check plugin list api
+#    sleep 5 # wait for load plugin
+#    plugins=$(curl -sS http://localhost:8080/api/v3/gitbucket/plugins)
+#    echo $plugins | jq -e ".[] | select(.id == \"${PLUGIN_ID}\")" > /dev/null
+#    if [ $? != 0 ] ; then
+#        rm -f ${PLUGINS_DIR}/$(basename ${PLUGIN_JAR})
+#        return
+#    fi
 
-    # test plugin
-    if [ -e ../test.sh ]; then
-        bash ../test.sh >&2 || return
-    fi
+#    # test plugin
+#    if [ -e ../test.sh ]; then
+#        bash ../test.sh >&2 || return
+#    fi
 
-    # make json flagment
+#    # make json flagment
     json=$( jq -c . <<EOS
 {
     "id": "${PLUGIN_ID}",
@@ -88,20 +96,20 @@ mkdir -p dist
 json_array=()
 fail_array=()
 
-git config --global credential.helper "store --file $HOME/.git-credentials"
-echo "http://root:root@localhost%3a8080" > ~/.git-credentials
+#git config --global credential.helper "store --file $HOME/.git-credentials"
+#echo "http://root:root@localhost%3a8080" > ~/.git-credentials
 
 # create repository for test
-(
-    curl -u root:root -H "Content-type: application/json" -X POST -d "{\"name\": \"repo\"}" http://localhost:8080/api/v3/user/repos || exit 1
-    pushd repo
-    git init .
-    git add .
-    git commit . -m "test"
-    git remote add origin http://localhost:8080/git/root/repo
-    git push -u origin master || exit 1
-    popd
-) >&2 || exit 1
+#(
+#    curl -u root:root -H "Content-type: application/json" -X POST -d "{\"name\": \"repo\"}" http://localhost:8080/api/v3/user/repos || exit 1
+#    pushd repo
+#    git init .
+#    git add .
+#    git commit . -m "test"
+#    git remote add origin http://localhost:8080/git/root/repo
+#    git push -u origin master || exit 1
+#    popd
+#) >&2 || exit 1
 
 cd plugins
 
@@ -128,6 +136,6 @@ if [ ${#fail_array[*]} != 0 ]; then
     echo "Failed to build:${fail_array[*]}"
     exit 1
 else
-    echo "[$(IFS=,;echo "${json_array[*]}")]" > ${TRAVIS_BUILD_DIR}/dist/plugins.json
+#    echo "[$(IFS=,;echo "${json_array[*]}")]" > ${TRAVIS_BUILD_DIR}/dist/plugins.json
     exit 0
 fi

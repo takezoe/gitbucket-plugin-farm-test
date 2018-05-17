@@ -18,7 +18,7 @@ before_cache:
 
 before_script:
   - mkdir -p $HOME/Downloads
-  - bash -xe ./run_gitbucket.sh
+#  - bash -xe ./run_gitbucket.sh
 
 script:
   - bash ./build_all.sh
@@ -27,12 +27,3 @@ after_script:
   - ls dist
   - cat dist/plugins.json
   - cat ~/gitbucket.log
-
-deploy:
-  provider: releases
-  api_key: "$GITHUB_TOKEN"
-  skip_cleanup: true
-  file_glob: true
-  file: dist/*
-  on:
-    tags: true
